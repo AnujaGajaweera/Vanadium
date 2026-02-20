@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "vanadium",
+  "version": "${version}",
+  "name": "Vanadium",
+  "description": "Vulkan-native SPIR-V shader loader and manager for Minecraft via VulkanMod.",
+  "authors": [
+    "Vanadium Maintainers"
+  ],
+  "contact": {
+    "homepage": "https://example.invalid/vanadium",
+    "sources": "https://example.invalid/vanadium/repo"
+  },
+  "license": "${license}",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "net.vanadium.mod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "vulkanmod": "*",
+    "iris": "*",
+    "sodium": "*",
+    "lithium": "*",
+    "phosphor": "*"
+  }
+}
