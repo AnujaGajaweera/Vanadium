@@ -1,38 +1,80 @@
 # Shader Format Specification
 
+Vanadium now supports a structured `.mcshader` layout for modular pipeline packs.
+
 ## Container
 
 - Extension: `.mcshader`
-- Physical format: ZIP archive
-- Scan directory: `<gameDir>/shaderpacks/`
+- Format: ZIP archive
+- Scan path: `<gameDir>/shaderpacks/`
 - `.zip` shader packs are ignored
 
-## Required File
+## Required Root Files
 
+- `LICENSE`
+- `README.md`
 - `metadata.json`
 
-## Shader Modules
+## Required Folders
 
-Declared under `metadata.modules`.
+- `shaders/`
+- `lib/`
+- `world-0/`
+- `world-1/`
+- `world-2/`
+- `textures/`
+- `config/`
 
-Supported keys:
+## shaders/
 
-- `vertex`
-- `fragment`
-- `compute` (required)
-- `geometry` (optional)
+Required:
 
-Each module:
+- `pack.json`
+- at least one `*.properties.xml`
 
-- `path` (required)
-- `entryPoint` (optional, defaults to `main`)
+Typical property files:
+
+- `block.properties.xml`
+- `colorwheel.properties.xml`
+- `dimension.properties.xml`
+- `entity.properties.xml`
+- `item.properties.xml`
+- `shaders.properties.xml`
+
+## lib/
+
+Reusable precompiled SPIR-V utilities grouped by category, for example:
+
+- `antialiasing/`
+- `atmospherics/`
+- `colors/`
+- `lighting/`
+- `materials/`
+- `misc/`
+- `textRendering/`
+
+## world-*/
+
+World pipeline shader modules are stored per pipeline folder (for example `composite1.vsh`, `composite1.fsh`, `shadow.vsh`).
+
+## textures/
+
+Stores textures consumed by shader pipelines (for example blue-noise, cloud, and water maps). Optional `.mcmeta` texture metadata is supported.
+
+## config/
+
+Required files:
+
+- `defaults.json`
+- `toggles.json`
 
 ## Validation
 
-Vanadium rejects invalid packs safely (without client crash) when any of the following fail:
+Vanadium validates:
 
-- SPIR-V magic number and binary length checks
-- instruction stream shape checks
-- expected entrypoint presence
-- execution model/stage match
-- descriptor decoration checks (`DescriptorSet`, `Binding`) when descriptor layout is declared
+- archive safety limits/path traversal
+- structured layout requirements listed above
+- module location rules:
+  - graphics stages in `world-*`
+  - compute stage in `lib/` or `world-*`
+- SPIR-V module validity (magic, stream shape, entrypoint, execution model)

@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "name": "Vanadium Demo Pack",
+  "renderer": "vulkan",
+  "format": "spirv"
+}

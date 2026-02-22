@@ -1,6 +1,6 @@
 # Metadata Specification
 
-`metadata.json` is mandatory for every `.mcshader` archive.
+`metadata.json` is mandatory.
 
 ## Required Fields
 
@@ -19,21 +19,28 @@
 
 ## modules
 
-Allowed module keys:
+Allowed stage keys:
 
 - `vertex`
 - `fragment`
 - `compute` (required)
-- `geometry`
+- `geometry` (optional)
 
-Each module object:
+Each module entry:
 
 - `path`: string, required
-- `entryPoint`: string, optional (`main` default)
+- `entryPoint`: string, optional (defaults to `main`)
+
+Location constraints:
+
+- `vertex`, `fragment`, `geometry` paths must be under `world-*`
+- `compute` path must be under `lib/` or `world-*`
 
 ## renderPass
 
-- `colorAttachments`: integer in `[1, 8]`
+- `colorAttachments`: integer in `[1,8]`
 - `depthAttachment`: boolean
 
-Missing required fields or invalid types cause pack rejection with logged diagnostics.
+## icon
+
+If set, `icon` must point to an existing archive entry (for example `icon.png`).

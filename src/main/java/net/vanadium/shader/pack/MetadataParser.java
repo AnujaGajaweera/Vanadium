@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public final class MetadataParser {
@@ -33,6 +34,9 @@ public final class MetadataParser {
         String version = required(root, "version");
         String supportedMinecraftVersion = required(root, "supportedMinecraftVersion");
         String icon = optional(root, "icon");
+        if (icon != null && (icon.startsWith("/") || icon.contains(".."))) {
+            throw new JsonParseException("metadata.icon contains an unsafe path");
+        }
 
         JsonObject modulesNode = objectNode(root, "modules");
         Map<ShaderStage, ShaderModuleConfig> modules = new EnumMap<>(ShaderStage.class);
@@ -44,6 +48,8 @@ public final class MetadataParser {
         if (!modules.containsKey(ShaderStage.COMPUTE)) {
             throw new JsonParseException("modules.compute is required");
         }
+
+        validateModuleSet(modules);
 
         List<DescriptorBindingSpec> descriptorLayout = parseDescriptorLayout(root.get("descriptorLayout"));
         RenderPassSpec renderPass = parseRenderPass(root.get("renderPass"));
@@ -68,7 +74,28 @@ public final class MetadataParser {
         JsonObject moduleNode = modulesNode.getAsJsonObject(key);
         String path = required(moduleNode, "path");
         String entry = optional(moduleNode, "entryPoint");
+        if (path.startsWith("/") || path.contains("..")) {
+            throw new JsonParseException("Unsafe module path: " + path);
+        }
         modules.put(stage, new ShaderModuleConfig(stage, path, entry));
+    }
+
+    private static void validateModuleSet(Map<ShaderStage, ShaderModuleConfig> modules) {
+        for (Map.Entry<ShaderStage, ShaderModuleConfig> entry : modules.entrySet()) {
+            ShaderStage stage = entry.getKey();
+            String path = entry.getValue().path().toLowerCase(Locale.ROOT);
+
+            boolean extensionOk = switch (stage) {
+                case VERTEX -> path.endsWith(".vsh") || path.endsWith(".vert.spv") || path.endsWith(".spv");
+                case FRAGMENT -> path.endsWith(".fsh") || path.endsWith(".frag.spv") || path.endsWith(".spv");
+                case GEOMETRY -> path.endsWith(".gsh") || path.endsWith(".geom.spv") || path.endsWith(".spv");
+                case COMPUTE -> path.endsWith(".comp.spv") || path.endsWith(".csh") || path.endsWith(".spv");
+            };
+
+            if (!extensionOk) {
+                throw new JsonParseException("Unexpected module extension for " + stage + ": " + entry.getValue().path());
+            }
+        }
     }
 
     private static List<DescriptorBindingSpec> parseDescriptorLayout(JsonElement element) {

@@ -11,13 +11,11 @@ import net.vanadium.vulkan.VulkanBackend;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -33,8 +31,8 @@ public final class ShaderManager {
     private final FallbackRenderer fallbackRenderer;
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private final Map<String, LoadedShaderPack> loadedPacks = new ConcurrentHashMap<>();
-    private final Map<String, String> packErrors = new ConcurrentHashMap<>();
+    private final Map<String, LoadedShaderPack> loadedPacks = new LinkedHashMap<>();
+    private final Map<String, String> packErrors = new LinkedHashMap<>();
 
     private volatile String activePackId;
     private volatile PipelineHandle graphicsPipeline;
@@ -64,6 +62,7 @@ public final class ShaderManager {
         lock.writeLock().lock();
         try {
             List<PackLoadResult> results = packLoader.scan(shaderpacksDir);
+            String previouslyActivePack = activePackId;
             loadedPacks.clear();
             packErrors.clear();
             for (PackLoadResult result : results) {
@@ -82,11 +81,16 @@ public final class ShaderManager {
                 }
             }
 
-            if (activePackId != null && !loadedPacks.containsKey(activePackId)) {
+            if (previouslyActivePack != null && !loadedPacks.containsKey(previouslyActivePack)) {
                 deactivateActivePack();
             }
 
-            if (activePackId == null && !loadedPacks.isEmpty()) {
+            if (previouslyActivePack != null && loadedPacks.containsKey(previouslyActivePack)) {
+                if (!activatePack(previouslyActivePack)) {
+                    StructuredLog.warn(logger, "active-pack-reload-failed", StructuredLog.kv("pack", previouslyActivePack));
+                    fallbackRenderer.enable();
+                }
+            } else if (activePackId == null && !loadedPacks.isEmpty()) {
                 String first = loadedPacks.values().stream()
                         .sorted(Comparator.comparing(pack -> pack.metadata().name().toLowerCase()))
                         .findFirst()
@@ -112,6 +116,11 @@ public final class ShaderManager {
                 lastActionError = "Pack not found: " + id;
                 return false;
             }
+            if (!backend.isReady()) {
+                lastActionError = "Vulkan backend is not ready";
+                fallbackRenderer.enable();
+                return false;
+            }
 
             PipelineBuilder.BuildResult graphics = pipelineBuilder.buildGraphics(pack);
             if (!graphics.success()) {
@@ -122,7 +131,7 @@ public final class ShaderManager {
             }
 
             if (!computeManager.activate(pack)) {
-                lastActionError = "Compute pipeline activation failed";
+                lastActionError = computeManager.lastFailureReason().orElse("Compute pipeline activation failed");
                 fallbackRenderer.enable();
                 return false;
             }
@@ -162,7 +171,9 @@ public final class ShaderManager {
     public List<LoadedShaderPack> listPacks() {
         lock.readLock().lock();
         try {
-            return new ArrayList<>(loadedPacks.values());
+            return loadedPacks.values().stream()
+                    .sorted(Comparator.comparing(pack -> pack.metadata().name().toLowerCase()))
+                    .toList();
         } finally {
             lock.readLock().unlock();
         }

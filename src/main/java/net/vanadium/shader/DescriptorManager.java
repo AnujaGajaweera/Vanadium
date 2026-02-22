@@ -14,7 +14,13 @@ public final class DescriptorManager {
             if (spec.set() < 0 || spec.binding() < 0) {
                 return DescriptorValidation.invalid("Negative descriptor set/binding in metadata");
             }
-            declared.add(spec.set() * 1000 + spec.binding());
+            if (spec.type() == null || spec.type().isBlank() || spec.name() == null || spec.name().isBlank()) {
+                return DescriptorValidation.invalid("Descriptor entries require non-empty type and name");
+            }
+            int key = spec.set() * 1000 + spec.binding();
+            if (!declared.add(key)) {
+                return DescriptorValidation.invalid("Duplicate descriptor set/binding in metadata: " + spec.set() + "/" + spec.binding());
+            }
         }
 
         Set<Integer> reflected = new HashSet<>();

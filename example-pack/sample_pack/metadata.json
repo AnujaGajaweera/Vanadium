@@ -1,20 +1,21 @@
 {
   "name": "Vanadium Demo Pack",
   "author": "Vanadium Team",
-  "description": "Minimal Vulkan SPIR-V pipeline pack used for validation and integration tests.",
-  "version": "1.0.0",
+  "description": "Structured modular SPIR-V pack with world pipelines and reusable shader libs.",
+  "version": "2.0.0",
   "supportedMinecraftVersion": "1.21.1",
+  "icon": "icon.png",
   "modules": {
     "vertex": {
-      "path": "shaders/triangle.vert.spv",
+      "path": "world-0/composite1.vsh",
       "entryPoint": "main"
     },
     "fragment": {
-      "path": "shaders/triangle.frag.spv",
+      "path": "world-0/composite1.fsh",
       "entryPoint": "main"
     },
     "compute": {
-      "path": "shaders/update.comp.spv",
+      "path": "lib/misc/prepare.comp.spv",
       "entryPoint": "main"
     }
   },

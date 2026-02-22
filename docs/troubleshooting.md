@@ -1,46 +1,55 @@
 # Troubleshooting
 
-## Vanadium does not initialize
+## Vanadium stays inactive
 
 Cause:
 
-- VulkanMod not installed or not loading
+- VulkanMod is not loaded.
 
 Fix:
 
 - Install VulkanMod and verify Fabric loads it.
 
-## No packs are listed
+## Pack rejected (structured layout)
+
+Check required files exist:
+
+- `LICENSE`
+- `README.md`
+- `metadata.json`
+- `shaders/pack.json`
+- `config/defaults.json`
+- `config/toggles.json`
+
+Check required folders exist:
+
+- `shaders/`, `lib/`, `world-0/`, `world-1/`, `world-2/`, `textures/`, `config/`
+
+Check at least one shader property file exists:
+
+- `shaders/*.properties.xml`
+
+## Pack rejected (module placement)
+
+Check module paths in `metadata.json`:
+
+- graphics modules in `world-*`
+- compute module in `lib/` or `world-*`
+
+## SPIR-V validation failure
 
 Check:
 
-- pack extension is `.mcshader`
-- pack is placed in `<gameDir>/shaderpacks/`
-- `metadata.json` exists and is valid
+- binaries are valid SPIR-V
+- entrypoint names match metadata
+- stage execution model matches module type
 
-## Pack is rejected
-
-Check:
-
-- required metadata fields are present
-- `modules.compute` exists
-- module paths point to valid SPIR-V binaries
-- entrypoint names match actual SPIR-V entrypoints
-
-## UI entry missing in Video Settings
-
-Check:
-
-- client entrypoint `net.vanadium.VanadiumClient` is present in `fabric.mod.json`
-- client classes are under `src/client/java`
-- build includes `src/client/resources/vanadium.client.mixins.json`
-
-## Build fails with Gradle lock/permission errors
+## Gradle permission/lock failure
 
 Cause:
 
-- wrapper cache lock in `~/.gradle` not writable in sandbox
+- restricted access to `~/.gradle` in sandbox
 
 Fix:
 
-- rerun build with proper permissions for Gradle cache access.
+- run build with permissions that allow Gradle wrapper cache access.

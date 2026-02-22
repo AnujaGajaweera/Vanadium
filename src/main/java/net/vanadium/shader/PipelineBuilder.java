@@ -14,6 +14,10 @@ public final class PipelineBuilder {
     }
 
     public BuildResult buildGraphics(LoadedShaderPack pack) {
+        if (!backend.isReady()) {
+            return BuildResult.failed("vulkan backend is not ready");
+        }
+
         boolean hasVertex = pack.modules().containsKey(ShaderStage.VERTEX);
         boolean hasFragment = pack.modules().containsKey(ShaderStage.FRAGMENT);
         if (!hasVertex || !hasFragment) {
@@ -24,11 +28,17 @@ public final class PipelineBuilder {
         if (renderPass.colorAttachments() < 1) {
             return BuildResult.failed("renderPass.colorAttachments must be >= 1");
         }
+        if (renderPass.colorAttachments() > 8) {
+            return BuildResult.failed("renderPass.colorAttachments must be <= 8");
+        }
 
         return BuildResult.success(backend.buildGraphicsPipeline(pack));
     }
 
     public BuildResult buildCompute(LoadedShaderPack pack) {
+        if (!backend.isReady()) {
+            return BuildResult.failed("vulkan backend is not ready");
+        }
         if (!pack.modules().containsKey(ShaderStage.COMPUTE)) {
             return BuildResult.failed("compute module is mandatory");
         }

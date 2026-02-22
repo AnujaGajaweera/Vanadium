@@ -7,11 +7,14 @@ import net.vanadium.vulkan.PipelineHandle;
 import net.vanadium.vulkan.VulkanBackend;
 import org.slf4j.Logger;
 
+import java.util.Optional;
+
 public final class ComputeManager {
     private final Logger logger;
     private final PipelineBuilder pipelineBuilder;
     private final VulkanBackend backend;
     private PipelineHandle currentHandle;
+    private volatile String lastFailureReason;
 
     public ComputeManager(Logger logger, PipelineBuilder pipelineBuilder, VulkanBackend backend) {
         this.logger = logger;
@@ -22,6 +25,7 @@ public final class ComputeManager {
     public boolean activate(LoadedShaderPack pack) {
         PipelineBuilder.BuildResult result = pipelineBuilder.buildCompute(pack);
         if (!result.success()) {
+            lastFailureReason = result.reason();
             StructuredLog.warn(logger, "compute-build-failed", StructuredLog.kv("pack", pack.id(), "reason", result.reason()));
             return false;
         }
@@ -30,6 +34,7 @@ public final class ComputeManager {
             backend.destroyPipeline(currentHandle);
         }
         currentHandle = result.pipelineHandle();
+        lastFailureReason = null;
 
         StructuredLog.info(logger, "compute-activated", StructuredLog.kv("pack", pack.id(), "pipeline", currentHandle.id()));
         return true;
@@ -40,5 +45,10 @@ public final class ComputeManager {
             backend.destroyPipeline(currentHandle);
             currentHandle = null;
         }
+        lastFailureReason = null;
+    }
+
+    public Optional<String> lastFailureReason() {
+        return Optional.ofNullable(lastFailureReason);
     }
 }
