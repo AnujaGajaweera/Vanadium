@@ -92,6 +92,9 @@ public final class ShaderPackLoader {
             Map<ShaderStage, SpirvModule> modules = new EnumMap<>(ShaderStage.class);
             for (Map.Entry<ShaderStage, ShaderModuleConfig> moduleEntry : metadata.modules().entrySet()) {
                 ShaderModuleConfig moduleConfig = moduleEntry.getValue();
+                if (!moduleConfig.path().toLowerCase(Locale.ROOT).endsWith(".spv")) {
+                    return PackLoadResult.failed(id, "Only compiled SPIR-V binaries are allowed (.spv): " + moduleConfig.path());
+                }
                 ZipEntry binaryEntry = zip.getEntry(moduleConfig.path());
                 if (binaryEntry == null) {
                     return PackLoadResult.failed(id, "Module file missing: " + moduleConfig.path());

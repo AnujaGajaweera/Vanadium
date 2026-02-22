@@ -85,15 +85,8 @@ public final class MetadataParser {
             ShaderStage stage = entry.getKey();
             String path = entry.getValue().path().toLowerCase(Locale.ROOT);
 
-            boolean extensionOk = switch (stage) {
-                case VERTEX -> path.endsWith(".vsh") || path.endsWith(".vert.spv") || path.endsWith(".spv");
-                case FRAGMENT -> path.endsWith(".fsh") || path.endsWith(".frag.spv") || path.endsWith(".spv");
-                case GEOMETRY -> path.endsWith(".gsh") || path.endsWith(".geom.spv") || path.endsWith(".spv");
-                case COMPUTE -> path.endsWith(".comp.spv") || path.endsWith(".csh") || path.endsWith(".spv");
-            };
-
-            if (!extensionOk) {
-                throw new JsonParseException("Unexpected module extension for " + stage + ": " + entry.getValue().path());
+            if (!path.endsWith(".spv")) {
+                throw new JsonParseException("Only compiled SPIR-V binaries are allowed (.spv): " + entry.getValue().path());
             }
         }
     }

@@ -7,11 +7,11 @@
   "icon": "icon.png",
   "modules": {
     "vertex": {
-      "path": "world-0/composite1.vsh",
+      "path": "world-0/composite1.vert.spv",
       "entryPoint": "main"
     },
     "fragment": {
-      "path": "world-0/composite1.fsh",
+      "path": "world-0/composite1.frag.spv",
       "entryPoint": "main"
     },
     "compute": {
