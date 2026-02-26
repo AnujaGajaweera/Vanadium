@@ -1,6 +1,6 @@
 {
-  "name": "Vanadium Demo Pack",
-  "author": "Vanadium Team",
+  "name": "Vim Demo Pack",
+  "author": "Vim Team",
   "description": "Structured modular SPIR-V pack with world pipelines and reusable shader libs.",
   "version": "2.0.0",
   "supportedMinecraftVersion": "1.21.1",

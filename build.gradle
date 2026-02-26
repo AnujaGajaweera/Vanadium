@@ -22,7 +22,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    // Declared for dynamic runtime compatibility; Vanadium remains safe if absent.
+    // Declared for dynamic runtime compatibility; Vim remains safe if absent.
     modCompileOnly "maven.modrinth:vulkanmod:${project.vulkanmod_version}"
 }
 
@@ -30,7 +30,7 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        vanadium {
+        vim {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
@@ -77,7 +77,7 @@ publishing {
             artifactId = project.archives_base_name
             from components.java
             pom {
-                name = 'Vanadium'
+                name = 'Vim'
                 description = 'Vulkan-native SPIR-V shader loader for Minecraft with strict VulkanMod isolation.'
                 licenses {
                     license {

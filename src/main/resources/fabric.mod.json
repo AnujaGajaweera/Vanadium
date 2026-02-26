@@ -1,33 +1,33 @@
 {
   "schemaVersion": 1,
-  "id": "vanadium",
+  "id": "vim",
   "version": "${version}",
-  "name": "Vanadium",
+  "name": "Vim",
   "description": "Vulkan-native SPIR-V shader loader and manager for Minecraft via VulkanMod.",
   "authors": [
-    "Vanadium Maintainers"
+    "Vim Maintainers"
   ],
   "contact": {
     "email": "anujagajaweera@gmail.com",
-    "homepage": "https://github.com/AnujaGajaweera/Vanadium",
-    "sources": "https://github.com/AnujaGajaweera/Vanadium",
-    "issues": "https://github.com/AnujaGajaweera/Vanadium/issues"
+    "homepage": "https://github.com/AnujaGajaweera/vim",
+    "sources": "https://github.com/AnujaGajaweera/vim",
+    "issues": "https://github.com/AnujaGajaweera/vim/issues"
   },
   "license": "${license}",
-  "icon": "assets/vanadium/icon.png",
+  "icon": "assets/vim/icon.png",
   "environment": "client",
   "entrypoints": {
     "main": [
-      "net.vanadium.mod"
+      "net.vim.mod"
     ],
     "client": [
-      "net.vanadium.VanadiumClient"
+      "net.vim.VimClient"
     ]
   },
   "mixins": [
-    "vanadium.mixins.json",
+    "vim.mixins.json",
     {
-      "config": "vanadium.client.mixins.json",
+      "config": "vim.client.mixins.json",
       "environment": "client"
     }
   ],

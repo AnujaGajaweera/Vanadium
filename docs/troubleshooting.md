@@ -1,6 +1,6 @@
 # Troubleshooting
 
-## Vanadium stays inactive
+## Vim stays inactive
 
 Cause:
 

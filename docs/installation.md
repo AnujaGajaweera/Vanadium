@@ -11,6 +11,6 @@
 
 1. Build with `./gradlew build`.
 2. Place resulting JAR into `mods/`.
-3. Copy `example-pack/VanadiumDemo.mcshader` to `<gameDir>/shaderpacks/`.
+3. Copy `example-pack/VimDemo.mcshader` to `<gameDir>/shaderpacks/`.
 4. Launch game with VulkanMod enabled.
-5. Use `/vanadium list` and `/vanadium activate vanadiumdemo`.
+5. Use `/vim list` and `/vim activate Vimdemo`.

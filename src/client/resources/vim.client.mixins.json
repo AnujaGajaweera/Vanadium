@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.vim.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "VimClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

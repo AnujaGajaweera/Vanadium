@@ -1,6 +1,6 @@
 # LGPL-3.0 Compliance Notes
 
-Vanadium is licensed under LGPL-3.0-only.
+Vim is licensed under LGPL-3.0-only.
 
 Compliance artifacts:
 
@@ -11,5 +11,5 @@ Compliance artifacts:
 
 Dynamic linking model:
 
-- Vanadium links with Fabric and other mods at runtime in the mod loader environment
+- Vim links with Fabric and other mods at runtime in the mod loader environment
 - source-level modifications and redistribution remain permitted under LGPL terms

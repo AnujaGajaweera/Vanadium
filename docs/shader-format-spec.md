@@ -1,6 +1,6 @@
 # Shader Format Specification
 
-Vanadium now supports a structured `.mcshader` layout for modular pipeline packs.
+Vim now supports a structured `.mcshader` layout for modular pipeline packs.
 
 ## Container
 
@@ -70,7 +70,7 @@ Required files:
 
 ## Validation
 
-Vanadium validates:
+Vim validates:
 
 - archive safety limits/path traversal
 - structured layout requirements listed above
