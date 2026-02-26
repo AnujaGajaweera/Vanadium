@@ -23,7 +23,7 @@ Allowed stage keys:
 
 - `vertex`
 - `fragment`
-- `compute` (required)
+- `compute` (optional)
 - `geometry` (optional)
 
 Each module entry:

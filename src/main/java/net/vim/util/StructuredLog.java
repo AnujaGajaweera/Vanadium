@@ -23,6 +23,9 @@ public final class StructuredLog {
     }
 
     public static Map<String, Object> kv(Object... values) {
+        if ((values.length % 2) != 0) {
+            throw new IllegalArgumentException("StructuredLog.kv requires an even number of arguments (key/value pairs)");
+        }
         Map<String, Object> map = new LinkedHashMap<>();
         for (int i = 0; i + 1 < values.length; i += 2) {
             map.put(String.valueOf(values[i]), values[i + 1]);

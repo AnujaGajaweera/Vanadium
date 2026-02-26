@@ -142,7 +142,7 @@ Developer-oriented logging covers:
 4. Place `.mcshader` packs into:
 
 ```
-<gameDir>/shaderpacks/vim/
+<gameDir>/shaderpacks/
 ```
 
 5. Launch Minecraft

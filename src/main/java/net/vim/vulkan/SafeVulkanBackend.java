@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class SafeVulkanBackend implements VulkanBackend {
+    private static final boolean STUB_MODE = true;
+
     private final Logger logger;
     private final AtomicBoolean ready = new AtomicBoolean(false);
 
@@ -30,11 +32,25 @@ public final class SafeVulkanBackend implements VulkanBackend {
 
     @Override
     public PipelineHandle buildGraphicsPipeline(LoadedShaderPack pack) {
+        if (STUB_MODE) {
+            StructuredLog.warn(logger, "vulkan-pipeline-stub-mode", StructuredLog.kv(
+                    "type", "graphics",
+                    "pack", pack.id(),
+                    "detail", "No VulkanMod pipeline API is wired; returning synthetic handle"
+            ));
+        }
         return PipelineHandle.of("graphics", pack.id());
     }
 
     @Override
     public PipelineHandle buildComputePipeline(LoadedShaderPack pack) {
+        if (STUB_MODE) {
+            StructuredLog.warn(logger, "vulkan-pipeline-stub-mode", StructuredLog.kv(
+                    "type", "compute",
+                    "pack", pack.id(),
+                    "detail", "No VulkanMod pipeline API is wired; returning synthetic handle"
+            ));
+        }
         return PipelineHandle.of("compute", pack.id());
     }
 

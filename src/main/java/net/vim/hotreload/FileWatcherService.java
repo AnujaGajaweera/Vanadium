@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class FileWatcherService {
+    private static final long DEBOUNCE_NANOS = TimeUnit.MILLISECONDS.toNanos(300);
+
     private final Logger logger;
     private final Path shaderpacksDir;
     private final Runnable onChange;
@@ -81,7 +83,7 @@ public final class FileWatcherService {
     }
 
     private void watchLoop() {
-        long lastTrigger = 0L;
+        long lastTrigger = Long.MIN_VALUE;
         while (running.get()) {
             WatchKey key;
             try {
@@ -101,8 +103,8 @@ public final class FileWatcherService {
             key.reset();
 
             if (relevant) {
-                long now = System.currentTimeMillis();
-                if (now - lastTrigger > 300L) {
+                long now = System.nanoTime();
+                if (now - lastTrigger > DEBOUNCE_NANOS) {
                     lastTrigger = now;
                     StructuredLog.info(logger, "filewatcher-change", StructuredLog.kv("path", shaderpacksDir));
                     onChange.run();

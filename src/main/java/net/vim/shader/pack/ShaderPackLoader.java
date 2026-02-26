@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -81,7 +83,8 @@ public final class ShaderPackLoader {
 
             ShaderPackMetadata metadata;
             try (InputStream inputStream = zip.getInputStream(metadataEntry)) {
-                metadata = metadataParser.parse(inputStream);
+                byte[] metadataBytes = readEntryBytes(inputStream, metadataEntry.getName());
+                metadata = metadataParser.parse(new java.io.ByteArrayInputStream(metadataBytes));
             }
 
             String layoutError = validateStructuredLayout(zip, metadata);
@@ -102,7 +105,7 @@ public final class ShaderPackLoader {
 
                 byte[] bytes;
                 try (InputStream inputStream = zip.getInputStream(binaryEntry)) {
-                    bytes = inputStream.readAllBytes();
+                    bytes = readEntryBytes(inputStream, binaryEntry.getName());
                 }
 
                 SpirvInspector.SpirvInspection inspection = spirvInspector.inspect(
@@ -128,7 +131,18 @@ public final class ShaderPackLoader {
                 ));
             }
 
-            return PackLoadResult.success(new LoadedShaderPack(id, path, metadata, modules));
+            byte[] iconBytes = null;
+            String iconPath = metadata.icon();
+            if (iconPath != null && !iconPath.isBlank()) {
+                ZipEntry iconEntry = zip.getEntry(iconPath);
+                if (iconEntry != null && !iconEntry.isDirectory()) {
+                    try (InputStream inputStream = zip.getInputStream(iconEntry)) {
+                        iconBytes = readEntryBytes(inputStream, iconEntry.getName());
+                    }
+                }
+            }
+
+            return PackLoadResult.success(new LoadedShaderPack(id, path, metadata, modules, iconBytes));
         } catch (Exception e) {
             StructuredLog.warn(logger, "pack-load-failed", StructuredLog.kv("pack", id, "reason", e.getMessage()));
             return PackLoadResult.failed(id, e.getMessage());
@@ -148,8 +162,16 @@ public final class ShaderPackLoader {
                 throw new IOException("Archive path traversal detected");
             }
 
-            if (!entry.isDirectory() && entry.getSize() > MAX_ENTRY_SIZE) {
-                throw new IOException("Archive entry exceeds size limit: " + name);
+            if (!entry.isDirectory()) {
+                long compressed = entry.getCompressedSize();
+                if (compressed > 0 && compressed > MAX_ENTRY_SIZE) {
+                    throw new IOException("Archive entry compressed size exceeds limit: " + name);
+                }
+
+                long size = entry.getSize();
+                if (size > MAX_ENTRY_SIZE) {
+                    throw new IOException("Archive entry exceeds size limit: " + name);
+                }
             }
         }
     }
@@ -237,7 +259,11 @@ public final class ShaderPackLoader {
 
     private static boolean isNonEmptyFile(ZipFile zip, String path) {
         ZipEntry entry = zip.getEntry(path);
-        return entry != null && !entry.isDirectory() && entry.getSize() > 0;
+        if (entry == null || entry.isDirectory()) {
+            return false;
+        }
+        long size = entry.getSize();
+        return size != 0;
     }
 
     private static String validateJsonFiles(ZipFile zip) {
@@ -248,7 +274,8 @@ public final class ShaderPackLoader {
                 return "Missing required JSON file: " + file;
             }
             try (InputStream in = zip.getInputStream(entry)) {
-                JsonElement parsed = JsonParser.parseReader(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8));
+                byte[] bytes = readEntryBytes(in, file);
+                JsonElement parsed = JsonParser.parseReader(new InputStreamReader(new java.io.ByteArrayInputStream(bytes), StandardCharsets.UTF_8));
                 if (parsed == null || !parsed.isJsonObject()) {
                     return file + " must contain a JSON object";
                 }
@@ -257,5 +284,13 @@ public final class ShaderPackLoader {
             }
         }
         return null;
+    }
+
+    private static byte[] readEntryBytes(InputStream inputStream, String name) throws IOException {
+        byte[] bytes = inputStream.readNBytes((int) (MAX_ENTRY_SIZE + 1));
+        if (bytes.length > MAX_ENTRY_SIZE) {
+            throw new IOException("Archive entry exceeds size limit while reading: " + name);
+        }
+        return bytes;
     }
 }

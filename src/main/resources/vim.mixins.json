@@ -1,11 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.mixin",
+  "package": "net.vim.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [
-    "MinecraftServerMixin"
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   }

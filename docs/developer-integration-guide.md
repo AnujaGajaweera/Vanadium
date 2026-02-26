@@ -24,6 +24,7 @@ From `fabric.mod.json`:
 3. Backend and shader subsystems initialize.
 4. Shader packs are loaded and validated.
 5. Hot reload watcher + UI hooks are registered.
+6. No shader pack is auto-activated when no prior active pack exists.
 
 ## Core Components
 
@@ -42,10 +43,8 @@ From `fabric.mod.json`:
 
 ## Mixin Layer
 
-- Common mixin package: `net.mixin`
 - Client mixin package: `net.vim.mixin.client`
 
 Current mixins:
 
-- `src/main/java/net/mixin/MinecraftServerMixin.java`
 - `src/client/java/net/vim/mixin/client/VimClientMixin.java`

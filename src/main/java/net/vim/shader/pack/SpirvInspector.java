@@ -41,7 +41,12 @@ public final class SpirvInspector {
             }
 
             if (opcode == OP_ENTRY_POINT) {
-                ShaderStage stage = decodeExecutionModel(words.get(i + 1));
+                ShaderStage stage;
+                try {
+                    stage = decodeExecutionModel(words.get(i + 1));
+                } catch (IllegalArgumentException e) {
+                    return SpirvInspection.invalid(e.getMessage());
+                }
                 String name = parseString(words, i + 3, wordCount - 3);
                 entryStages.add(stage);
                 entryPoints.add(name);

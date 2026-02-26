@@ -7,6 +7,7 @@ public record LoadedShaderPack(
         String id,
         Path archivePath,
         ShaderPackMetadata metadata,
-        Map<ShaderStage, SpirvModule> modules
+        Map<ShaderStage, SpirvModule> modules,
+        byte[] iconBytes
 ) {
 }

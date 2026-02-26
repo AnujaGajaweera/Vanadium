@@ -268,7 +268,10 @@ public final class VimShaderConfigScreen extends Screen {
             try {
                 NativeImage image = NativeImage.read(new ByteArrayInputStream(bytes));
                 NativeImageBackedTexture texture = new NativeImageBackedTexture(image);
-                Identifier id = this.client.getTextureManager().registerDynamicTexture("vim_icon_" + selectedPackId, texture);
+                String safeKey = ("vim_icon_" + selectedPackId)
+                        .toLowerCase()
+                        .replaceAll("[^a-z0-9_.-]", "_");
+                Identifier id = this.client.getTextureManager().registerDynamicTexture(safeKey, texture);
                 this.iconTexture = texture;
                 this.iconTextureId = id;
             } catch (Exception ignored) {

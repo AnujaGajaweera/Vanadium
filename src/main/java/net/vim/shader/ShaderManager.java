@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 public final class ShaderManager {
     private final Logger logger;
@@ -90,16 +88,8 @@ public final class ShaderManager {
                     StructuredLog.warn(logger, "active-pack-reload-failed", StructuredLog.kv("pack", previouslyActivePack));
                     fallbackRenderer.enable();
                 }
-            } else if (activePackId == null && !loadedPacks.isEmpty()) {
-                String first = loadedPacks.values().stream()
-                        .sorted(Comparator.comparing(pack -> pack.metadata().name().toLowerCase()))
-                        .findFirst()
-                        .map(LoadedShaderPack::id)
-                        .orElse(null);
-
-                if (first != null) {
-                    activatePack(first);
-                }
+            } else if (activePackId == null) {
+                fallbackRenderer.enable();
             }
 
             StructuredLog.info(logger, "packs-reloaded", StructuredLog.kv("count", loadedPacks.size()));
@@ -212,16 +202,7 @@ public final class ShaderManager {
             if (iconPath == null || iconPath.isBlank() || iconPath.contains("..") || iconPath.startsWith("/")) {
                 return Optional.empty();
             }
-
-            try (ZipFile zipFile = new ZipFile(pack.archivePath().toFile())) {
-                ZipEntry iconEntry = zipFile.getEntry(iconPath);
-                if (iconEntry == null || iconEntry.isDirectory()) {
-                    return Optional.empty();
-                }
-                return Optional.of(zipFile.getInputStream(iconEntry).readAllBytes());
-            } catch (Exception ignored) {
-                return Optional.empty();
-            }
+            return Optional.ofNullable(pack.iconBytes());
         } finally {
             lock.readLock().unlock();
         }

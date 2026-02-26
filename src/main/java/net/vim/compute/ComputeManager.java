@@ -2,6 +2,7 @@ package net.vim.compute;
 
 import net.vim.shader.PipelineBuilder;
 import net.vim.shader.model.LoadedShaderPack;
+import net.vim.shader.model.ShaderStage;
 import net.vim.util.StructuredLog;
 import net.vim.vulkan.PipelineHandle;
 import net.vim.vulkan.VulkanBackend;
@@ -23,6 +24,16 @@ public final class ComputeManager {
     }
 
     public boolean activate(LoadedShaderPack pack) {
+        if (!pack.modules().containsKey(ShaderStage.COMPUTE)) {
+            if (currentHandle != null) {
+                backend.destroyPipeline(currentHandle);
+                currentHandle = null;
+            }
+            lastFailureReason = null;
+            StructuredLog.info(logger, "compute-disabled", StructuredLog.kv("pack", pack.id(), "reason", "no compute module"));
+            return true;
+        }
+
         PipelineBuilder.BuildResult result = pipelineBuilder.buildCompute(pack);
         if (!result.success()) {
             lastFailureReason = result.reason();

@@ -45,10 +45,6 @@ public final class MetadataParser {
         readModule(modulesNode, modules, "compute", ShaderStage.COMPUTE);
         readModule(modulesNode, modules, "geometry", ShaderStage.GEOMETRY);
 
-        if (!modules.containsKey(ShaderStage.COMPUTE)) {
-            throw new JsonParseException("modules.compute is required");
-        }
-
         validateModuleSet(modules);
 
         List<DescriptorBindingSpec> descriptorLayout = parseDescriptorLayout(root.get("descriptorLayout"));

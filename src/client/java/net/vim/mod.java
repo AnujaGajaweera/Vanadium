@@ -33,6 +33,7 @@ public final class mod implements ModInitializer {
     private VulkanBackend backend;
     private ShaderManager shaderManager;
     private FileWatcherService fileWatcherService;
+    private HotReloadService hotReloadService;
 
     @Override
     public void onInitialize() {
@@ -81,7 +82,7 @@ public final class mod implements ModInitializer {
                 fallbackRenderer
         );
 
-        HotReloadService hotReloadService = new HotReloadService(shaderManager);
+        hotReloadService = new HotReloadService(shaderManager);
         fileWatcherService = new FileWatcherService(LOGGER, shaderpacksDir, hotReloadService::triggerReload);
 
         shaderManager.reloadPacks();
@@ -98,6 +99,9 @@ public final class mod implements ModInitializer {
     private void shutdown() {
         if (fileWatcherService != null) {
             fileWatcherService.stop();
+        }
+        if (hotReloadService != null) {
+            hotReloadService.shutdown();
         }
         if (shaderManager != null) {
             shaderManager.deactivateActivePack();

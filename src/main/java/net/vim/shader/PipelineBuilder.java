@@ -40,7 +40,7 @@ public final class PipelineBuilder {
             return BuildResult.failed("vulkan backend is not ready");
         }
         if (!pack.modules().containsKey(ShaderStage.COMPUTE)) {
-            return BuildResult.failed("compute module is mandatory");
+            return BuildResult.failed("compute module is missing");
         }
         return BuildResult.success(backend.buildComputePipeline(pack));
     }
